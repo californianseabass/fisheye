@@ -8,8 +8,7 @@
 
 
 var photos = [
-  'DSC07758.JPG',
-  'DSC01131.JPG'
+  'DSC07647.JPG'
 ];
 var index = 0;
 var socket;
@@ -22,8 +21,7 @@ var Photo = React.createClass({
     var index = 0;
     socket = io.connect();
     socket.on('ls', function(data) {
-      var photos = data.files;
-      console.log(photos);
+      photos = data.files;
       var path =  "./dyn_photos/" + photos[index];
       this.setState({photo: path});
     });
@@ -31,9 +29,9 @@ var Photo = React.createClass({
   },
   handleClick: function() {
     index = (index + 1) % photos.length;
-    console.log(index);
-    console.log(photos[index]);
-    this.setState({photo: photos[index]});
+    var photo_path = photos[index];
+    console.log(photos);
+    this.setState({photo: photo_path});
   },
   render: function() {
     return (
