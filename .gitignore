@@ -1,0 +1,5 @@
+// osx creates these for the finder application
+.DS_STORE
+*/photos/*
+node_modules/
+build/
