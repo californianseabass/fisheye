@@ -19,33 +19,44 @@ http.listen(3000, function(){
   console.log('listening on *:3000');
 });
 
+if (process.argv.length < 3) {
+	console.log('node server.js $DIRNAME');
+	process.exit(-1);
+}
 
-var directory = '/Volumes/Untitled/DCIM/100MSDCF/';
+
+var photo_directory = process.argv[2];
 
 app.get('/dyn_photos/:photo', function(req, res){
-    var pid = req.params.photo;
-    console.log(pid);
+    var filename = req.params.photo;
 
-    var abs_path = '/Volumes/Untitled/DCIM/100MSDCF/' + pid;
-    res.sendfile(abs_path);
+    var sendfile_options = {
+    	root: photo_directory
+    };
+    res.sendFile(filename, sendfile_options, function (err) {
+	    if (err) {
+	      console.log(err);
+	      res.status(err.status).end();
+	    }
+	    else {
+	      console.log('Sent: ', filename);
+	    }
+	  });
 });
 
 io.on('connection', function(socket) {
-	fs.readdir(directory, function(err, files) {
+	console.log('Connecting established.');
+	fs.readdir(photo_directory, function(err, files) {
 		if (files === undefined) {
 			console.log('Error trying to read files from directory: ' + files);
 			return;
 		}
 		var filtered_files = files.filter(function(file) {
-			console.log(file);
-			console.log(file.search(/._/));
 			return path.extname(file).toLowerCase() === '.jpg' && (file.search(/._/) === -1);
 		});
-		// console.log(filterefiles)
 		files = filtered_files.map(function(file) {
 			return path.join('/dyn_photos/', file);
 		});
-		console.log(files);
 		io.emit('ls', {'files': files});
 	 	return;
 	});
