@@ -14,12 +14,19 @@ var index = 0;
 var socket;
 var photo =  "./photos/DSC07647.JPG";
 
-console.log('test')
+// var PhotoImg = React.createClass({
+//   render : function(){
+//     return (
+//       <img className="img-responsive" src={this.state.photo} onClick={this.handleClick}/>
+//     );
+//   }
+// });
 
 var Photo = React.createClass({
   getInitialState: function() {
     var index = 0;
     socket = io.connect();
+    console.log('found connection!');
     socket.on('ls', function(data) {
       photos = data.files;
       var path =  "./dyn_photos/" + photos[index];
@@ -48,14 +55,20 @@ var Photo = React.createClass({
 var GalleryWindow = React.createClass({
   getInitialState: function() {
     var index = 0;
+    return {};
   },
   render: function() {
-    return;
+    return (
+      <div>
+        <Photo />
+
+      </div>
+    );
   }
 });
 
 React.render(
-    <Photo />,
+    <GalleryWindow />,
     document.getElementById('content')
 );
 
