@@ -17,7 +17,7 @@ var photo =  "./photos/DSC07647.JPG";
 // var PhotoImg = React.createClass({
 //   render : function(){
 //     return (
-//       <img className="img-responsive" src={this.state.photo} onClick={this.handleClick}/>
+//       <img className="img-responsive" src={this.state.photo} onClick={this.handleRightClick}/>
 //     );
 //   }
 // });
@@ -34,7 +34,15 @@ var Photo = React.createClass({
     });
     return {photo: photo};
   },
-  handleClick: function() {
+  handleLeftClick: function() {
+    if (index > 0) {
+      index = index - 1;
+    } else {
+      index = photos.length;
+    }
+    this.setState({photo: photos[index]});
+  },
+  handleRightClick: function() {
     index = (index + 1) % photos.length;
     var photo_path = photos[index];
     console.log(photos);
@@ -42,7 +50,15 @@ var Photo = React.createClass({
   },
   render: function() {
     return (
-        <img className="img-responsive" src={this.state.photo} onClick={this.handleClick}/>
+        <div className="carousel-inner">
+        <img className="carousel-inner" src={this.state.photo}/>
+        <a className="left carousel-control" onClick={this.handleLeftClick}> 
+          <span className="glyphicon glyphicon-chevron-left" aria-hidden="true"> </span>
+        </a>
+        <a className="right carousel-control"  onClick={this.handleRightClick}> 
+          <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"> </span>
+        </a>
+        </div>
     );
   }
 });
