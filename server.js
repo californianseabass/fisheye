@@ -2,6 +2,8 @@
  * Created by californianseabass on 2/17/15.
  */
 
+ var PREFIX = '/dyn_photos/';
+
 var express = require('express');
 var app = express();
 
@@ -27,7 +29,25 @@ if (process.argv.length < 3) {
 
 var photo_directory = process.argv[2];
 
-app.get('/dyn_photos/:photo', function(req, res){
+var fetch_photos = function(directory) {
+	fs.readdir(directory, function(err, files) {
+		if (files === undefined) {
+			console.log('Error trying to read files from directory: ' + files);
+			return;
+		}
+		var filtered_files = files.filter(function(file) {
+			return path.extname(file).toLowerCase() === '.jpg' && (file.search(/._/) === -1);
+		});
+		files = filtered_files.map(function(file) {
+			return path.join(PREFIX, file);
+		});
+		io.emit('ls', {'files': files});
+	 	return;
+	});
+}
+
+// setup an endpoint for the client to request photos from
+app.get(PREFIX +':photo', function(req, res){
     var filename = req.params.photo;
 
     var sendfile_options = {
@@ -46,6 +66,14 @@ app.get('/dyn_photos/:photo', function(req, res){
 
 io.on('connection', function(socket) {
 	console.log('Connecting established.');
+
+	socket.on('delete', function (data) {
+		var path_to_delete = photo_directory + '/' + data.photo.split(PREFIX)[1]
+		fs.unlink(path_to_delete, function(e) {
+			console.log('deleted: ' + path_to_delete);
+		});
+  });
+
 	fs.readdir(photo_directory, function(err, files) {
 		if (files === undefined) {
 			console.log('Error trying to read files from directory: ' + files);
@@ -55,7 +83,7 @@ io.on('connection', function(socket) {
 			return path.extname(file).toLowerCase() === '.jpg' && (file.search(/._/) === -1);
 		});
 		files = filtered_files.map(function(file) {
-			return path.join('/dyn_photos/', file);
+			return path.join(PREFIX, file);
 		});
 		io.emit('ls', {'files': files});
 	 	return;

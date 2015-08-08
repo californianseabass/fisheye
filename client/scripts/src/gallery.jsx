@@ -27,26 +27,31 @@ var Photo = React.createClass({
     var index = 0;
     socket = io.connect();
     console.log('found connection!');
-    socket.on('ls', function(data) {
+    var socketConnectionCallback = function (data) {
       photos = data.files;
-      var path =  "./dyn_photos/" + photos[index];
-      this.setState({photo: path});
-    });
+      this.setState({ photo: photos[index] });
+    }
+    socket.on('ls', socketConnectionCallback.bind(this));
     return {photo: photo};
   },
   handleLeftClick: function() {
     if (index > 0) {
       index = index - 1;
     } else {
-      index = photos.length;
+      index = photos.length - 1;
     }
     this.setState({photo: photos[index]});
   },
   handleRightClick: function() {
     index = (index + 1) % photos.length;
     var photo_path = photos[index];
-    console.log(photos);
     this.setState({photo: photo_path});
+  },
+  handleDelete: function() {
+    // TODO: off by one error if last photo is deleted
+    socket.emit('delete', {photo: photos[index]});
+    photos.splice(index, 1);
+    this.setState({photo: photos[index]});
   },
   render: function() {
     return (
@@ -57,6 +62,9 @@ var Photo = React.createClass({
         </a>
         <a className="right carousel-control"  onClick={this.handleRightClick}> 
           <span className="glyphicon glyphicon-chevron-right" aria-hidden="true"> </span>
+        </a>
+        <a className="something">
+          <span className="glyphicon glyphicon-trash" onClick={this.handleDelete}> </span>
         </a>
         </div>
     );
